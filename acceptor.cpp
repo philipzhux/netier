@@ -5,7 +5,7 @@
  */
 #include "acceptor.h"
 
-Acceptor::Acceptor(Address& address, std::function<Context&(int)> contextCreator): 
+Acceptor::Acceptor(Address& address, std::function<Context&(int,Address)> contextCreator): 
         __contextCreator(contextCreator), __address(address)
 {
     __socket = std::make_unique<Socket>();
@@ -21,8 +21,7 @@ void Acceptor::AcceptConnection() {
     Address addr;
     int cfd = __socket->accept(addr);
     fcntl(cfd, F_SETFL, fcntl(cfd, F_GETFL) | O_NONBLOCK);
-    Context& context = __contextCreator(cfd);
-    context.getAddress() = std::move(addr);
+    Context& context = __contextCreator(cfd,std::move(addr));
 }
 
 

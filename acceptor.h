@@ -7,7 +7,7 @@
 
 class Acceptor {
     public:
-    Acceptor(Address& address, std::function<Context&(int)> contextCreator);
+    Acceptor(Address& address, std::function<Context&(int,Address)> contextCreator);
     ~Acceptor();
     void AcceptConnection();
     const Address& getAddress();
@@ -17,5 +17,5 @@ class Acceptor {
     Reactor __reactor;
     std::unique_ptr<IOContext> __ioc;
     std::unique_ptr<Socket> __socket;
-    std::function<Context&(int)> __contextCreator;
+    std::function<Context&(int,Address)> __contextCreator;
 };
