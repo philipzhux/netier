@@ -43,7 +43,7 @@ void Address::setAddress(std::string ip, uint16_t port)
         addrLen = sizeof(addr);
 }
 
-std::string Address::getIPString() const
+std::string Address::getHostString() const
 {
         return ::inet_ntoa(addr.sin_addr);
 }

@@ -21,7 +21,7 @@ class Address {
     const socklen_t & getAddrLen() const;
     sockaddr* getAddrPtr();
     socklen_t* getAddrLenPtr();
-    std::string getIPString() const;
+    std::string getHostString() const;
     uint16_t getPort() const;
     void setAddress (std::string ip,uint16_t port);
 };

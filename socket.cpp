@@ -22,7 +22,7 @@ Socket::~Socket() {
 
 void Socket::bind(const Address& addr) {
     errif(::bind(fd,(const sockaddr*)&(addr.getAddr()),sizeof(addr.getAddr()))<0,"bind");
-    //printf("socket with fd %d binded with %s:%d.\n",fd,addr.getIPString().c_str(),addr.getPort());
+    //printf("socket with fd %d binded with %s:%d.\n",fd,addr.getHostString().c_str(),addr.getPort());
 }
 
 size_t Socket::recvBufSize() const {
