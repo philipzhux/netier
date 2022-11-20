@@ -6,10 +6,14 @@
 
 #include "context.h"
 
-Context::Context(int cfd, Reactor *reactor, std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy) : 
-                                                                    __socket(std::make_unique<Socket>(cfd)), __buffer(std::make_unique<Buffer>()),
-                                                                    __wbuffer(std::make_unique<Buffer>()),__reactor(reactor), __destroyContext(onDestroy),
-                                                                    __onConn(onConenct)
+Context::Context(int cfd, Address address, Reactor *reactor,
+                 std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy) : __socket(std::make_unique<Socket>(cfd)),
+                                                                                                 __buffer(std::make_unique<Buffer>()),
+                                                                                                 __wbuffer(std::make_unique<Buffer>()),
+                                                                                                 __reactor(reactor),
+                                                                                                 __destroyContext(onDestroy),
+                                                                                                 __onConn(std::move(onConenct)),
+                                                                                                 __address(std::move(address))
 {
     assert(__destroyContext);
     __ioContext = std::make_unique<IOContext>(__reactor, cfd);
@@ -17,6 +21,7 @@ Context::Context(int cfd, Reactor *reactor, std::function<void(Context *)> onCon
     __ioContext->enableWrite();
     __ioContext->setET();
     __state = VALID;
+    if(__onConn) __onConn(this);
 }
 
 Context::~Context() {}
@@ -84,7 +89,7 @@ void Context::handleReadableEvent()
             break;
         }
     }
-    __onRecv(this);
+    if(__onRecv) __onRecv(this);
 }
 
 void Context::asyncWrite(const void *buf, size_t size)
@@ -179,8 +184,9 @@ ER Context::writeFile(std::string filePath, size_t size)
     return ER::UNIMPLEMENTED;
 }
 
-Address& Context::getAddress() {
-    return *__address;
+const Address &Context::getAddress()
+{
+    return __address;
 }
 
 std::vector<char> Context::read()
@@ -203,7 +209,7 @@ Context::State Context::getState()
 
 void Context::setOnRecv(std::function<void(Context *)> onRecv)
 {
-    __onRecv = onRecv;
+    __onRecv = std::move(onRecv);
 }
 
 void Context::destory()
