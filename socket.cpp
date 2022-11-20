@@ -1,21 +1,30 @@
 #include "socket.h"
 #include "error.h"
+#include <sys/ioctl.h>
 
 Socket::Socket() {
     fd = socket(AF_INET,SOCK_STREAM,0);
-    printf("socket with fd %d initialized.\n",fd);
+    //printf("socket with fd %d initialized.\n",fd);
 }
 
 Socket::Socket(int ufd):fd(ufd){}
 
 Socket::~Socket() {
     close(fd);
-    printf("socket[%d] destoryed.\n",fd);
+    //printf("socket[%d] destoryed.\n",fd);
 }
 
 void Socket::bind(InetAddress& addr) {
     errif(::bind(fd,(sockaddr*)&addr.getAddr(),sizeof(addr.getAddr()))<0,"bind");
-    printf("socket with fd %d binded with %s:%d.\n",fd,addr.getIPString().c_str(),addr.getPort());
+    //printf("socket with fd %d binded with %s:%d.\n",fd,addr.getIPString().c_str(),addr.getPort());
+}
+
+size_t Socket::recvBufSize() const {
+  size_t size = -1;
+  if (::ioctl(fd, FIONREAD, &size) == -1) {
+    perror("Socket get recv buf size failed");
+  }
+  return size;
 }
 
 void Socket::listen() {

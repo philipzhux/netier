@@ -1,41 +1,36 @@
-// class Reactor {
-//     private:
-
-//     public:
-//     Reactor();
-//     ~Reactor();
-//     void updateChannel(Channel*);
-//     //add/modify channel; auto removed when channel is destroyed
-//     void run();
-//     // a infinite loop
-
-// };
-
 #include "reactor.h"
 #include <assert.h>
 Reactor::Reactor()
 {
-    ep = Epoll();
+    __ep = Epoll();
 }
 
 Reactor::~Reactor()
 {
 }
 
-void Reactor::updateChan(Channel *chan)
+void Reactor::addIOContext(IOContext *ioc)
 {
-    ep.updateChan(chan);
+    __ep.addIOContext(ioc);
 }
 
-void Reactor::run()
+void Reactor::delIOContext(IOContext *ioc)
 {
-    while (true)
+    __ep.delIOContext(ioc);
+}
+
+void Reactor::loop()
+{
+    while (1)
     {
-       auto chans = ep.poll();
-       for(auto& chan: chans) {
-            assert(chan->isET());
-            if(chan->isReadable()) chan->handleReadable();
-            if(chan->isWritable()) chan->handleWritable();
-       }
+        auto io_contextes = __ep.poll();
+        for (auto &ioc : io_contextes)
+        {
+            assert(ioc->isET());
+            if (ioc->isReadable())
+                ioc->handleReadable();
+            if (ioc->isWritable())
+                ioc->handleWritable();
+        }
     }
 }

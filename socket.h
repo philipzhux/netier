@@ -19,6 +19,7 @@ class Socket {
     void listen();
     void bind(InetAddress&);
     void setBlocking(bool);
+    size_t recvBufSize() const;
     ~Socket();
 };
 #endif

@@ -15,7 +15,7 @@ public:
     ~ThreadPool();
     // the future decouple the return value
     // with the funciton invocation, acting like
-    // a channel in golang with fx return at write side
+    // a context in golang with fx return at write side
     template <class T, class... A>
     auto syncRunJob(T&& fx, A&& ...args) -> std::future<typename std::result_of<T()>::type> {
         using return_type = typename std::result_of<T()>::type;

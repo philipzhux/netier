@@ -12,13 +12,17 @@ Epoll::~Epoll() {
     printf("epoll with epfd  = %d destroyed.\n",epfd);
 }
 
-void Epoll::updateChan(Channel* chan) {
-    if(chan->isRegistered()) {
-        add(chan,chan->getEvents());
-        chan->setRegister();
+void Epoll::addIOContext(IOContext* c) {
+    if(c->isRegistered()) {
+        add(c,c->getEvents());
+        c->setRegister();
     } else {
-        modify(chan,chan->getEvents());
+        modify(c,c->getEvents());
     }
+}
+
+void Epoll::delIOContext(IOContext* c) {
+    del(c->getFd());
 }
 
 void Epoll::add(int fd,uint32_t events) {
@@ -28,11 +32,11 @@ void Epoll::add(int fd,uint32_t events) {
     errif(epoll_ctl(epfd,EPOLL_CTL_ADD,fd,&ev)<0,"Epoll::add");
 }
 
-void Epoll::add(Channel* chan,uint32_t events) {
+void Epoll::add(IOContext* c,uint32_t events) {
     struct epoll_event ev;
-    ev.data.ptr = (void*)chan;
+    ev.data.ptr = (void*)c;
     ev.events = events;
-    errif(epoll_ctl(epfd,EPOLL_CTL_ADD,chan->getFd(),&ev)<0,"Epoll::add");
+    errif(epoll_ctl(epfd,EPOLL_CTL_ADD,c->getFd(),&ev)<0,"Epoll::add");
 }
 
 void Epoll::add(Socket const& socket,uint32_t events) {
@@ -40,7 +44,7 @@ void Epoll::add(Socket const& socket,uint32_t events) {
     ev.data.fd = socket.getFd();
     ev.events = events;
     errif(epoll_ctl(epfd,EPOLL_CTL_ADD,socket.getFd(),&ev)<0,"Epoll::add");
-    printf("epfd[%d] monitoring socket[%d]\n",epfd,socket.getFd());
+    //printf("epfd[%d] monitoring socket[%d]\n",epfd,socket.getFd());
 }
 
 void Epoll::add(Socket const& socket) {
@@ -58,11 +62,11 @@ void Epoll::modify(int fd,uint32_t events) {
     errif(epoll_ctl(epfd,EPOLL_CTL_MOD,fd,&ev)<0,"Epoll::modify");
 }
 
-void Epoll::modify(Channel* chan,uint32_t events) {
+void Epoll::modify(IOContext* c,uint32_t events) {
     struct epoll_event ev;
-    ev.data.ptr = (void*)chan;
+    ev.data.ptr = (void*)c;
     ev.events = events;
-    errif(epoll_ctl(epfd,EPOLL_CTL_MOD,chan->getFd(),&ev)<0,"Epoll::add");
+    errif(epoll_ctl(epfd,EPOLL_CTL_MOD,c->getFd(),&ev)<0,"Epoll::add");
 }
 
 void Epoll::del(int fd) {
@@ -81,13 +85,13 @@ epoll_event* Epoll::getEvents() {
     return events;
 }
 
-std::vector<Channel*> Epoll::poll() {
-    std::vector<Channel*> ret;
+std::vector<IOContext*> Epoll::poll() {
+    std::vector<IOContext*> ret;
     int nfds = waitEvents();
     for(int i=0;i<nfds;i++){
-        Channel* chan = (Channel*)events[i].data.ptr;
-        chan->setRevents(events[i].events);
-        ret.push_back(chan);
+        IOContext* c = (IOContext*)events[i].data.ptr;
+        c->setRevents(events[i].events);
+        ret.push_back(c);
     }
     return ret;
 }

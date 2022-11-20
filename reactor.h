@@ -1,6 +1,6 @@
 #include <functional>
 #include <vector>
-#include "channel.h"
+#include "io_context.h"
 
 /*
  * Reactor wraps a group of tasks to be handled each
@@ -13,13 +13,14 @@
 class Reactor
 {
 private:
-    Epoll ep;
+    Epoll __ep;
 
 public:
     Reactor();
     ~Reactor();
-    void updateChan(Channel *);
-    // add/modify channel; auto removed when channel is destroyed
-    void run();
+    void addIOContext(IOContext *);
+    void Reactor::delIOContext(IOContext *);
+    // add/modify context; auto removed when context is destroyed
+    void loop();
     // an infinite loop
 };

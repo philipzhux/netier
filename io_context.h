@@ -5,24 +5,24 @@
 #include "reactor.h"
 
 /*
-* Channel encapsulates an fd to be monitored by epoll
+* IOContext encapsulates an fd to be monitored by epoll
 * context of a tcp connection shall be further isolated
 * as a seperate class; Callbacks will be set by connection
-* as an std::function<void()> with [capture] *Connection
+* as an std::function<void()> with [capture] *Context
 */
 
-class Channel {
+class IOContext {
     private:
-    Reactor* rt;
-    int fd;
-    uint32_t events;
-    uint32_t revents; //return events
-    std::function<void()> writableCb;
-    std::function<void()> readableCb;
-    bool registered;
+    Reactor* __reactor;
+    int __fd;
+    uint32_t __events;
+    uint32_t __revents; //return events
+    std::function<void()> __writableCb;
+    std::function<void()> __readableCb;
+    bool __registered;
     public:
-    Channel(Reactor*,int);
-    ~Channel();
+    IOContext(Reactor*,int);
+    ~IOContext();
     void enableRead();
     void enableWrite();
     void disableRead();
