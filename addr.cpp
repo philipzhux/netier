@@ -5,9 +5,9 @@
  */
 
 #include "addr.h"
-Address::Address(std::string ip, uint16_t port) : Address()
+Address::Address(std::string host, uint16_t port) : Address()
 {
-        setAddress(ip, port);
+        setAddress(host, port);
 }
 
 Address::Address()
@@ -43,12 +43,12 @@ void Address::setAddress(std::string ip, uint16_t port)
         addrLen = sizeof(addr);
 }
 
-std::string Address::getIPString()
+std::string Address::getIPString() const
 {
         return ::inet_ntoa(addr.sin_addr);
 }
 
-uint16_t Address::getPort()
+uint16_t Address::getPort() const
 {
         return ::ntohs(addr.sin_port);
 }
