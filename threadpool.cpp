@@ -1,8 +1,17 @@
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
 #include "threadpool.h"
 
-ThreadPool::ThreadPool(unsigned int size):_stop(false) {
-    for(unsigned int i=0; i<size;i++) {
-        _threads.emplace_back(std::thread([this](){
+ThreadPool::ThreadPool(unsigned int size) : _stop(false)
+{
+    for (unsigned int i = 0; i < size; i++)
+    {
+        _threads.emplace_back(std::thread([this]()
+                                          {
             while(true) {
                 std::function<void()> task;
                 {
@@ -13,19 +22,20 @@ ThreadPool::ThreadPool(unsigned int size):_stop(false) {
                     _jobs.pop();
                 }
                 task();
-            }
-        }));
+            } }));
     }
-    
 }
 
-ThreadPool::~ThreadPool() {
+ThreadPool::~ThreadPool()
+{
     {
         std::unique_lock<std::mutex> lock(_mu);
         _stop = true;
     }
     _qchange.notify_all();
-    for(auto &t:_threads) {
-        if(t.joinable()) t.join();
+    for (auto &t : _threads)
+    {
+        if (t.joinable())
+            t.join();
     }
 }

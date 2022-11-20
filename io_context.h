@@ -1,5 +1,10 @@
-#ifndef CHAN_H 
-#define CHAN_H
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
+#pragma once
 #include "epoll.h"
 #include <functional>
 #include "reactor.h"
@@ -31,8 +36,8 @@ class IOContext {
     void setLT();
     void setEvents(uint32_t ev);
     void setRevents(uint32_t ret);
-    void setReadCallback(std::function<void()>);
-    void setWriteCallback(std::function<void()>);
+    void setReadCallback(std::function<void(void)>);
+    void setWriteCallback(std::function<void(void)>);
     void handleReadable();
     void handleWritable();
     uint32_t getEvents();
@@ -44,4 +49,3 @@ class IOContext {
     bool isET();
     void setRegister();
 };
-#endif

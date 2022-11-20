@@ -1,5 +1,9 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+#pragma once
 #include "addr.h"
 #include <sys/socket.h>
 #include <unistd.h>
@@ -14,12 +18,11 @@ class Socket {
     Socket();
     Socket(int);
     Socket(bool);
-    int accept(InetAddress& addr);
+    int accept(Address& addr);
     int getFd() const;
     void listen();
-    void bind(InetAddress&);
+    void bind(const Address&);
     void setBlocking(bool);
     size_t recvBufSize() const;
     ~Socket();
 };
-#endif

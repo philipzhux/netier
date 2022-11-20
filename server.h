@@ -1,21 +1,29 @@
-#ifndef SERVER_H
-#define SERVER_H
-#include <sys/socket.h>
-#include <sys/epoll.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include "error.h"
-#include "epoll.h"
-#include "socket.h"
-#include "addr.h"
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
 
-#define READ_BUFFER 1024
+#pragma once
+#include "cppserv.h"
+#include "acceptor.h"
+#include <vector>
+#include <unordered_map>
+class Server
+{
+public:
+    Server(Address addr);
+    void setOnConn(std::function<Context *(void)>);
+    void setOnRecv(std::function<Context *(void)>);
+    void start();
+    Context *contextCreator(int fd);
+    void contextDestroyer(int fd);
+    ~Server();
 
-typedef void handler(int);
-void handleRequest(Socket socker);
-void handleAccept(Socket& socker);
-#endif
+private:
+    Address __addr;
+    std::vector<Reactor> __reactors;
+    std::unique_ptr<ThreadPool> __threadpool;
+    std::unique_ptr<Acceptor> __acceptor;
+    std::unordered_map<int, std::unique_ptr<Context>> contextes; // a context is binded with a reactor at create time
+};

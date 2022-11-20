@@ -1,8 +1,15 @@
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
 #include "context.h"
 
-Context::Context(int cfd, Reactor *reactor, std::function<void(int)> destoryer) : __socket(std::make_unique<Socket>(cfd)),
-                                                                                  __buffer(std::make_unique<Buffer>()), __wbuffer(std::make_unique<Buffer>()),
-                                                                                  __reactor(reactor), __destroyContext(destoryer)
+Context::Context(int cfd, Reactor *reactor, std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy) : 
+                                                                    __socket(std::make_unique<Socket>(cfd)), __buffer(std::make_unique<Buffer>()),
+                                                                    __wbuffer(std::make_unique<Buffer>()),__reactor(reactor), __destroyContext(onDestroy),
+                                                                    __onConn(onConenct)
 {
     assert(__destroyContext);
     __ioContext = std::make_unique<IOContext>(__reactor, cfd);
@@ -172,6 +179,10 @@ ER Context::writeFile(std::string filePath, size_t size)
     return ER::UNIMPLEMENTED;
 }
 
+Address& Context::getAddress() {
+    return *__address;
+}
+
 std::vector<char> Context::read()
 {
     return std::move(__buffer->get());
@@ -188,11 +199,6 @@ std::string Context::readString()
 Context::State Context::getState()
 {
     return __state;
-}
-
-void Context::setOnConn(std::function<void(Context *)> onConn)
-{
-    __onConn = onConn;
 }
 
 void Context::setOnRecv(std::function<void(Context *)> onRecv)

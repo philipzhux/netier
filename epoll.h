@@ -1,5 +1,10 @@
-#ifndef EPOLL_H
-#define EPOLL_H
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
+#pragma once
 #include <sys/epoll.h>
 #include <unistd.h>
 #include "socket.h"
@@ -31,4 +36,4 @@ public:
     void modify(IOContext *c, uint32_t events);
     void del(int fd);
 };
-#endif
+

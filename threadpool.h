@@ -1,5 +1,10 @@
-#ifndef THREAD_H
-#define THREAD_H
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
+#pragma once
 #include <thread>
 #include <functional>
 #include <future>
@@ -13,18 +18,22 @@ class ThreadPool
 public:
     explicit ThreadPool(unsigned int size = std::thread::hardware_concurrency());
     ~ThreadPool();
+    
     // the future decouple the return value
     // with the funciton invocation, acting like
     // a context in golang with fx return at write side
     template <class T, class... A>
-    auto syncRunJob(T&& fx, A&& ...args) -> std::future<typename std::result_of<T()>::type> {
+    auto asyncRunJob(T &&fx, A &&...args) -> std::future<typename std::result_of<T()>::type>
+    {
         using return_type = typename std::result_of<T()>::type;
-        auto task = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<T>(fx),std::forward<A>(args)...));
+        auto task = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<T>(fx), std::forward<A>(args)...));
         auto ret = task->get_future();
         {
             std::unique_lock<std::mutex> lock(_mu);
-            _jobs.emplace([task](){(*task)();});
-            if(_stop) throw std::runtime_error("Trying to add task to a stopped thread pool.");
+            _jobs.emplace([task]()
+                          { (*task)(); });
+            if (_stop)
+                throw std::runtime_error("Trying to add task to a stopped thread pool.");
         }
         _qchange.notify_one();
         return ret;
@@ -37,8 +46,3 @@ private:
     std::condition_variable _qchange;
     bool _stop;
 };
-
-
-
-
-#endif

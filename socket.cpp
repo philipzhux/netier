@@ -1,3 +1,9 @@
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
 #include "socket.h"
 #include "error.h"
 #include <sys/ioctl.h>
@@ -14,8 +20,8 @@ Socket::~Socket() {
     //printf("socket[%d] destoryed.\n",fd);
 }
 
-void Socket::bind(InetAddress& addr) {
-    errif(::bind(fd,(sockaddr*)&addr.getAddr(),sizeof(addr.getAddr()))<0,"bind");
+void Socket::bind(const Address& addr) {
+    errif(::bind(fd,(const sockaddr*)&(addr.getAddr()),sizeof(addr.getAddr()))<0,"bind");
     //printf("socket with fd %d binded with %s:%d.\n",fd,addr.getIPString().c_str(),addr.getPort());
 }
 
@@ -31,11 +37,13 @@ void Socket::listen() {
     errif(::listen(fd,MAX_EVENTS)<0,"listen");
 }
 
-int Socket::accept(InetAddress& addr){
-    int ufd = ::accept(fd,(sockaddr*)&addr.getAddr(),&addr.getAddrLen());
+int Socket::accept(Address& addr){
+    int ufd = ::accept(fd,addr.getAddrPtr(),addr.getAddrLenPtr());
     errif(ufd<0,"accept");
     return ufd;
 }
+
+
 
 int Socket::getFd() const{
     return fd;

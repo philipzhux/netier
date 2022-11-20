@@ -1,3 +1,9 @@
+/*
+ * Created on Sun Nov 20 2022
+ *
+ * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
+ */
+
 #include "io_context.h"
 
 IOContext::IOContext(Reactor* rt, int fd): __reactor(rt),__fd(fd),__registered(false) {}
@@ -70,11 +76,11 @@ void IOContext::setRegister() {
     __registered = true;
 }
 
-void IOContext::setReadCallback(std::function<void()> cb) {
+void IOContext::setReadCallback(std::function<void(void)> cb) {
     __readableCb = cb;
 }
 
-void IOContext::setWriteCallback(std::function<void()> cb) {
+void IOContext::setWriteCallback(std::function<void(void)> cb) {
     __writableCb = cb;
 }
 
