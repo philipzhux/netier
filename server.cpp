@@ -24,7 +24,24 @@ void Server::serve()
 
 }
 
+Context *Server::contextCreator(int fd, Address addr)
+{
+    std::unique_ptr<Context> newContext =
+        std::make_unique<Context>(fd, std::move(addr), schedule(fd),
+                                  __onConn, std::bind(&Server::contextDestroyer, this));
+    __contextes[fd] = std::move(newContext);
+    return __contextes[fd].get();
+}
 
+void Server::contextDestroyer(int fd)
+{
+    __contextes.erase(fd);
+}
+
+Reactor *Server::schedule(int fd)
+{
+    return &__reactors[fd % __reactors.size()];
+}
 
 void Server::setOnConn(std::function<Context *(void)> onConn)
 {
