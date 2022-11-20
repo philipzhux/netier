@@ -21,7 +21,7 @@ public:
     
     // the future decouple the return value
     // with the funciton invocation, acting like
-    // a context in golang with fx return at write side
+    // a channel in golang with fx return at write side
     template <class T, class... A>
     auto asyncRunJob(T &&fx, A &&...args) -> std::future<typename std::result_of<T()>::type>
     {

@@ -9,6 +9,8 @@
 #include "context.h"
 #include "reactor.h"
 #include "threadpool.h"
+#include <memory>
+#include <functional>
 
 enum class ER {
   UNDEFINED,
