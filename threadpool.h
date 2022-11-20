@@ -29,20 +29,24 @@ public:
         auto task = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<T>(fx), std::forward<A>(args)...));
         auto ret = task->get_future();
         {
-            std::unique_lock<std::mutex> lock(_mu);
-            _jobs.emplace([task]()
+            std::unique_lock<std::mutex> lock(__mu);
+            __jobs.emplace([task]()
                           { (*task)(); });
-            if (_stop)
+            if (__stop)
                 throw std::runtime_error("Trying to add task to a stopped thread pool.");
         }
-        _qchange.notify_one();
+        __qchange.notify_one();
         return ret;
-    }
+    };
+
+    inline unsigned int getSize() const {
+        return __threads.size();
+    };
 
 private:
-    std::vector<std::thread> _threads;
-    std::queue<std::function<void()>> _jobs;
-    std::mutex _mu;
-    std::condition_variable _qchange;
-    bool _stop;
+    std::vector<std::thread> __threads;
+    std::queue<std::function<void()>> __jobs;
+    std::mutex __mu;
+    std::condition_variable __qchange;
+    bool __stop;
 };

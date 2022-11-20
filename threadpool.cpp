@@ -6,20 +6,20 @@
 
 #include "threadpool.h"
 
-ThreadPool::ThreadPool(unsigned int size) : _stop(false)
+ThreadPool::ThreadPool(unsigned int size) : __stop(false)
 {
     for (unsigned int i = 0; i < size; i++)
     {
-        _threads.emplace_back(std::thread([this]()
+        __threads.emplace_back(std::thread([this]()
                                           {
             while(true) {
                 std::function<void()> task;
                 {
-                    std::unique_lock<std::mutex> lock(_mu);
-                    while(!_stop&&_jobs.empty()) _qchange.wait(lock);
-                    if(_stop && _jobs.empty()) return;
-                    task = _jobs.front();
-                    _jobs.pop();
+                    std::unique_lock<std::mutex> lock(__mu);
+                    while(!__stop&&__jobs.empty()) __qchange.wait(lock);
+                    if(__stop && __jobs.empty()) return;
+                    task = __jobs.front();
+                    __jobs.pop();
                 }
                 task();
             } }));
@@ -29,11 +29,11 @@ ThreadPool::ThreadPool(unsigned int size) : _stop(false)
 ThreadPool::~ThreadPool()
 {
     {
-        std::unique_lock<std::mutex> lock(_mu);
-        _stop = true;
+        std::unique_lock<std::mutex> lock(__mu);
+        __stop = true;
     }
-    _qchange.notify_all();
-    for (auto &t : _threads)
+    __qchange.notify_all();
+    for (auto &t : __threads)
     {
         if (t.joinable())
             t.join();
