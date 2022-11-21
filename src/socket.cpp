@@ -4,8 +4,8 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "socket.h"
-#include "error.h"
+#include "socket.hpp"
+#include "error.hpp"
 #include <sys/ioctl.h>
 
 Socket::Socket() {

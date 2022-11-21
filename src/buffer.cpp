@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "buffer.h"
+#include "buffer.hpp"
 #include <assert.h>
 
 void *Buffer::getWriter(size_t size)
@@ -17,7 +17,7 @@ void *Buffer::getWriter(size_t size)
 
 void Buffer::put(const void *buf, size_t size)
 {
-    __buffer.insert(__buffer.end(), (const char *)buf, (const char *)(buf + size));
+    __buffer.insert(__buffer.end(), (const char *)buf, (const char *)buf + size);
 }
 
 std::vector<char> Buffer::get(size_t size)

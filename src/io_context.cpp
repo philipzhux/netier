@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "io_context.h"
+#include "io_context.hpp"
 
 IOContext::IOContext(Reactor* rt, int fd): __reactor(rt),__fd(fd),__registered(false) {}
 
@@ -24,7 +24,7 @@ void IOContext::enableWrite(){
     setEvents(getEvents()|EPOLLOUT);
 }
 
-void IOContext::disableRead(){
+void IOContext::disableWrite(){
     setEvents(getEvents()&~EPOLLOUT);
 }
 

@@ -8,7 +8,9 @@
 #include <functional>
 #include <vector>
 #include <assert.h>
-#include "io_context.h"
+#include <epoll.hpp>
+
+class IOContext;
 
 /*
  * Reactor wraps a group of tasks to be handled each
@@ -27,7 +29,7 @@ public:
     Reactor();
     ~Reactor();
     void addIOContext(IOContext *);
-    void Reactor::delIOContext(IOContext *);
+    void delIOContext(IOContext *);
     // add/modify context; auto removed when context is destroyed
     void loop();
     // an infinite loop

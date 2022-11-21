@@ -3,9 +3,9 @@
  *
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
-#include "acceptor.h"
+#include "acceptor.hpp"
 
-Acceptor::Acceptor(Address& address, std::function<Context&(int,Address)> contextCreator): 
+Acceptor::Acceptor(Address& address, std::function<const Context&(int,Address)> contextCreator): 
         __contextCreator(contextCreator), __address(address)
 {
     __socket = std::make_unique<Socket>();
@@ -21,7 +21,7 @@ void Acceptor::AcceptConnection() {
     Address addr;
     int cfd = __socket->accept(addr);
     fcntl(cfd, F_SETFL, fcntl(cfd, F_GETFL) | O_NONBLOCK);
-    Context& context = __contextCreator(cfd,std::move(addr));
+    __contextCreator(cfd,std::move(addr));
 }
 
 
@@ -30,5 +30,5 @@ const Address& Acceptor::getAddress() {
 }
 
 std::function<void(void)> Acceptor::getMainLoop() {
-    return std::bind(&(Reactor::loop),&(this->__reactor));
+    return std::bind(&Reactor::loop,&(this->__reactor));
 }

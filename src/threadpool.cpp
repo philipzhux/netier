@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "threadpool.h"
+#include "threadpool.hpp"
 
 ThreadPool::ThreadPool(unsigned int size) : __stop(false)
 {

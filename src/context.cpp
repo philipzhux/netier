@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "context.h"
+#include "context.hpp"
 
 Context::Context(int cfd, Address address, Reactor *reactor,
                  std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy) : __socket(std::make_unique<Socket>(cfd)),
@@ -112,7 +112,7 @@ ER Context::syncWrite(const void *buf, size_t size)
         else if (bytes_written == -1 && (errno == EWOULDBLOCK || errno == EAGAIN))
         {
             if (remaining > 0)
-                asyncWrite(buf + (size - remaining), remaining);
+                asyncWrite((const char*)buf + (size - remaining), remaining);
             return ER::SUCCESS;
         }
         else if (bytes_written == 0)
@@ -140,7 +140,7 @@ ER Context::write(const std::string &data)
 
 ER Context::write(std::string &&data)
 {
-    write(std::move(data));
+    return write(std::move(data));
 }
 
 ER Context::write(const std::vector<char> &data)
@@ -150,7 +150,7 @@ ER Context::write(const std::vector<char> &data)
 
 ER Context::write(std::vector<char> &&data)
 {
-    write(std::move(data));
+    return write(std::move(data));
 }
 
 ER Context::writeFile(std::string filePath)
@@ -172,6 +172,7 @@ ER Context::writeFile(std::string filePath)
             }
         }
         flushWriteBuffer();
+        return ER::SUCCESS;
     }
     else
     {

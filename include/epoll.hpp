@@ -7,11 +7,12 @@
 #pragma once
 #include <sys/epoll.h>
 #include <unistd.h>
-#include "socket.h"
-#include "error.h"
-#include "io_context.h"
+#include "socket.hpp"
+#include "error.hpp"
 #include <vector>
 #define MAX_EVENTS 1024
+
+class IOContext;
 
 class Epoll
 {

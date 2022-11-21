@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
 
-#include "error.h"
+#include "error.hpp"
 
 void errif(bool condition, const char *errmsg) {
     if(condition){

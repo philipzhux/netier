@@ -3,12 +3,11 @@
  *
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
-
 #pragma once
-#include "epoll.h"
 #include <functional>
-#include "reactor.h"
+#include "reactor.hpp"
 
+class Epoll;
 /*
 * IOContext encapsulates an fd to be monitored by epoll
 * context of a tcp connection shall be further isolated

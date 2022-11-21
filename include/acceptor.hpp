@@ -3,11 +3,19 @@
  *
  * Copyright (c) 2022 Philip Zhu Chuyan <me@cyzhu.dev>
  */
-#include "cppserv.h"
+#pragma once
+#include "cppserv.hpp"
+#include "reactor.hpp"
+#include "address.hpp"
+#include "socket.hpp"
+#include "io_context.hpp"
+#include <memory>
+#include <functional>
+class Context;
 
 class Acceptor {
     public:
-    Acceptor(Address& address, std::function<Context&(int,Address)> contextCreator);
+    Acceptor(Address& address, std::function<const Context&(int,Address)> contextCreator);
     ~Acceptor();
     void AcceptConnection();
     const Address& getAddress();
@@ -17,5 +25,5 @@ class Acceptor {
     Reactor __reactor;
     std::unique_ptr<IOContext> __ioc;
     std::unique_ptr<Socket> __socket;
-    std::function<Context&(int,Address)> __contextCreator;
+    std::function<const Context&(int,Address)> __contextCreator;
 };
