@@ -40,6 +40,7 @@ void Context::flushWriteBuffer()
 {
     assert(__state!=MOVED);
     int bytes_written;
+    int __socket_fd = __socket->getFd();
     while (__wbuffer->size() > 0)
     {
         bytes_written = ::write(__socket_fd, __wbuffer->getReader(), __wbuffer->size());
@@ -97,7 +98,7 @@ void Context::handleReadableEvent()
             __state = CLOSED;
             printf("read EOF, client fd %d disconnected\n", fd);
             this->destory();
-            break;
+            return;
         }
         else
         {
@@ -105,7 +106,7 @@ void Context::handleReadableEvent()
             __state = INVALID;
             printf("Unknown error on fd=%d, socket closed and context destroyed\n", fd);
             this->destory();
-            break;
+            return;
         }
     }
     //printf("Context::handleReadableEvent(): moved readable data to bufer\n");
@@ -124,7 +125,7 @@ ER Context::syncWrite(const void *buf, size_t size)
     assert(__state!=MOVED);
     int bytes_written;
     int remaining = size;
-    printf("Context::syncWrite: size = %ld, __socket_fd = %d\n",size,__socket_fd);
+    int __socket_fd = __socket->getFd();
     while (remaining > 0)
     {
         bytes_written = ::write(__socket_fd, buf, remaining);
@@ -251,8 +252,10 @@ void Context::setOnRecv(std::function<void(Context *)> onRecv)
 void Context::destory()
 {
     assert(__state!=MOVED);
-    __destroyContext(__socket_fd);
+    __destroyContext(__socket->getFd());
 }
+
+
 
 // ~Context();
 // std::vector<char> read();
