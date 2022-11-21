@@ -41,6 +41,7 @@ class IOContext {
     void setWriteCallback(std::function<void(void)>);
     void handleReadable();
     void handleWritable();
+    void handleGeneral();
     uint32_t getEvents();
     uint32_t getRevents();
     int getFd();

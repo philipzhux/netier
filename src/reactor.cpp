@@ -41,14 +41,7 @@ void Reactor::loop()
         auto io_contextes = __ep.poll();
         for (auto &ioc : io_contextes)
         {
-            printf("point 1\n");
-            //assert(ioc->isET());
-            if (ioc->isReadable()) {
-                printf("point 2\n");
-                ioc->handleReadable();
-            }
-            if (ioc->isWritable())
-                ioc->handleWritable();
+            ioc->handleGeneral();
         }
     }
 }

@@ -72,11 +72,13 @@ bool IOContext::isET() {
 }
 
 bool IOContext::isWritable() {
+    if(!__reactor) return false;
     assert(__reactor);
     return getRevents()&EPOLLOUT!=0;
 }
 
 bool IOContext::isReadable() {
+    if(!__reactor) return false;
     assert(__reactor);
     return getRevents()&EPOLLIN!=0;
 }
@@ -125,5 +127,16 @@ void IOContext::handleReadable() {
     if(__readableCb) {
         printf("point3\n");
         __readableCb();
+    }
+}
+
+void IOContext::handleGeneral() {
+    if (isReadable())
+    {
+        handleReadable();
+    }
+    if (isWritable())
+    {
+        handleWritable();
     }
 }
