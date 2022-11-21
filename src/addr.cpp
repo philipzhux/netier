@@ -5,6 +5,7 @@
  */
 
 #include "address.hpp"
+#include "utils.hpp"
 
 Address::Address(std::string host, uint16_t port, Address_type addrType) : Address()
 {
@@ -23,25 +24,26 @@ Address::Address() : __address_type(IPV4)
 }
 
 Address::Address(Address &&other) : __address_type(std::move(other.__address_type)),
-                                   __addr(std::move(other.__addr)),
-                                   __addrLen(std::move(other.__addrLen)) {}
+                                    __addr(std::move(other.__addr)),
+                                    __addrLen(std::move(other.__addrLen)) {}
 
 Address::Address(const Address &other) : __address_type(other.__address_type),
-                                   __addr(other.__addr),
-                                   __addrLen(other.__addrLen) {}                    
+                                         __addr(other.__addr),
+                                         __addrLen(other.__addrLen) {}
 
-Address& Address::operator=(Address&& other)
+Address &Address::operator=(Address &&other)
 {
-        if(this==&other) return *this;
+        if (this == &other)
+                return *this;
         __address_type = std::move(other.__address_type);
         __addr = std::move(other.__addr);
         __addrLen = std::move(other.__addrLen);
         return *this;
-
 }
-Address& Address::operator=(const Address& other)
+Address &Address::operator=(const Address &other)
 {
-        if(this==&other) return *this;
+        if (this == &other)
+                return *this;
         __address_type = other.__address_type;
         __addr = other.__addr;
         __addrLen = other.__addrLen;
@@ -77,7 +79,7 @@ void Address::setAddress(std::string ip, uint16_t port)
 }
 
 void Address::setAddress(std::string ip, uint16_t port, Address_type type)
-{       
+{
         __address_type = type;
         __addr.sin_addr.s_addr = inet_addr(ip.c_str());
         __addr.sin_family = __address_type;
@@ -88,6 +90,11 @@ void Address::setAddress(std::string ip, uint16_t port, Address_type type)
 std::string Address::getHostString() const
 {
         return ::inet_ntoa(__addr.sin_addr);
+}
+
+std::string Address::getAddressString() const
+{
+        return string_format("%s:%d", ::inet_ntoa(__addr.sin_addr), int(getPort()));
 }
 
 uint16_t Address::getPort() const

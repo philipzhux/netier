@@ -5,7 +5,8 @@
  */
 #pragma once
 
-enum class ER {
+enum class ER
+{
   UNDEFINED,
   SUCCESS,
   SOCKET_ERROR,

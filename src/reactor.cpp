@@ -9,16 +9,18 @@
 
 Reactor::Reactor() : __moved(0)
 {
-    printf("reactor created\n");
+    // printf("reactor created\n");
 }
 
-Reactor::Reactor(Reactor&& r): __ep(std::move(r.__ep)),__moved(0)
+Reactor::Reactor(Reactor &&r) : __ep(std::move(r.__ep)), __moved(0)
 {
     r.__moved = 1;
 }
 
-Reactor::~Reactor() {
-    if(!__moved) printf("reactor destoryed\n");
+Reactor::~Reactor()
+{
+    if (!__moved)
+        printf("reactor destroyed\n");
 }
 
 void Reactor::addIOContext(IOContext *ioc)

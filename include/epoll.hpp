@@ -20,14 +20,14 @@ class Epoll
 private:
     int epfd;
     std::unique_ptr<epoll_event[]> events;
-    //epoll_event *events;
+    // epoll_event *events;
     int waitEvents();
     epoll_event *getEvents();
 
 public:
     Epoll();
-    Epoll(Epoll&&);
-    Epoll(const Epoll&) = delete;
+    Epoll(Epoll &&);
+    Epoll(const Epoll &) = delete;
     ~Epoll();
     std::vector<IOContext *> poll();
     void addIOContext(IOContext *ioc);
@@ -41,4 +41,3 @@ public:
     void modify(IOContext *c, uint32_t events);
     void del(int fd);
 };
-

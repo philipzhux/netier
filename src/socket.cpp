@@ -26,7 +26,7 @@ Socket::~Socket()
 {
     if (fd > 0)
         close(fd);
-    // printf("socket[%d] destoryed.\n",fd);
+    // printf("socket[%d] destroyed.\n",fd);
 }
 
 void Socket::bind(const Address &addr)
@@ -78,7 +78,7 @@ int Socket::accept(Address &a)
         inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
         a.setAddress(ipstr, port, Address::Address_type::IPV6);
     }
-    
+
     errif(ufd < 0, "accept");
     return ufd;
 }

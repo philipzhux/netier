@@ -18,7 +18,7 @@ class ThreadPool
 public:
     explicit ThreadPool(unsigned int size = std::thread::hardware_concurrency());
     ~ThreadPool();
-    
+
     // the future decouple the return value
     // with the funciton invocation, acting like
     // a channel in golang with fx return at write side
@@ -31,7 +31,7 @@ public:
         {
             std::unique_lock<std::mutex> lock(__mu);
             __jobs.emplace([task]()
-                          { (*task)(); });
+                           { (*task)(); });
             if (__stop)
                 throw std::runtime_error("Trying to add task to a stopped thread pool.");
         }
@@ -39,7 +39,8 @@ public:
         return ret;
     };
 
-    inline unsigned int getSize() const {
+    inline unsigned int getSize() const
+    {
         return __threads.size();
     };
 

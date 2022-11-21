@@ -14,7 +14,6 @@
 #include <functional>
 #include <memory>
 
-
 class Context
 {
 public:
@@ -42,9 +41,9 @@ private:
 public:
     Context(int cfd, Address address, Reactor *reactor,
             std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy);
-    Context(Context&&);
-    Context(const Context&) = delete;
-    Context& operator=(Context&&) = delete;
+    Context(Context &&);
+    Context(const Context &) = delete;
+    Context &operator=(Context &&) = delete;
     ~Context();
     void handleReadableEvent(); // passed to iocontext
     void flushWriteBuffer();    // passed to iocontext
@@ -62,5 +61,5 @@ public:
     State getState();
     // void setOnConn(std::function<void(Context *)>);
     void setOnRecv(std::function<void(Context *)>);
-    void destory();
+    void destroy();
 };

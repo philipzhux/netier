@@ -9,25 +9,27 @@
 
 class Epoll;
 /*
-* IOContext encapsulates an fd to be monitored by epoll
-* context of a tcp connection shall be further isolated
-* as a seperate class; Callbacks will be set by connection
-* as an std::function<void()> with [capture] *Context
-*/
+ * IOContext encapsulates an fd to be monitored by epoll
+ * context of a tcp connection shall be further isolated
+ * as a seperate class; Callbacks will be set by connection
+ * as an std::function<void()> with [capture] *Context
+ */
 
-class IOContext {
-    private:
-    Reactor* __reactor;
+class IOContext
+{
+private:
+    Reactor *__reactor;
     int __fd;
     uint32_t __events;
-    uint32_t __revents; //return events
+    uint32_t __revents; // return events
     std::function<void()> __writableCb;
     std::function<void()> __readableCb;
     bool __registered;
-    public:
-    IOContext(Reactor*,int);
-    IOContext(IOContext&&);
-    IOContext(const IOContext&) = delete;
+
+public:
+    IOContext(Reactor *, int);
+    IOContext(IOContext &&);
+    IOContext(const IOContext &) = delete;
     ~IOContext();
     void enableRead();
     void enableWrite();

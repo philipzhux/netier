@@ -5,6 +5,7 @@
  */
 
 #include "server.hpp"
+#include <iostream>
 
 Server::Server(Address addr) : __addr(addr), __moved(0)
 {
@@ -13,7 +14,6 @@ Server::Server(Address addr) : __addr(addr), __moved(0)
     size_t size = __threadpool->getSize();
     for (size_t i = 0; i < size; i++)
     {
-        printf("loop number %ld\n", i);
         Reactor reactor{};
         __reactors.push_back(std::move(reactor));
     }
@@ -26,13 +26,13 @@ Server::Server(Address addr) : __addr(addr), __moved(0)
 //                                  __contextes(std::move(other.__contextes)),
 //                                  __moved(0) { other.__moved = 1; }
 
-
-
 void Server::serve()
 {
     size_t size = __threadpool->getSize();
     for (size_t i = 0; i < size; i++)
         __threadpool->asyncRunJob(std::bind(&Reactor::loop, &__reactors[i]));
+    std::cout << "Listening on "
+              << __addr.getAddressString() << " ..." << std::endl;
     __acceptor->getMainLoop()();
 }
 
@@ -41,7 +41,8 @@ const Context &Server::contextCreator(int fd, Address addr)
     std::unique_ptr<Context> newContext =
         std::make_unique<Context>(fd, std::move(addr), schedule(fd),
                                   __onConn, std::bind(&Server::contextDestroyer, this, std::placeholders::_1));
-    if(__onRecv) newContext->setOnRecv(__onRecv);
+    if (__onRecv)
+        newContext->setOnRecv(__onRecv);
     __contextes[fd] = std::move(newContext);
     return *__contextes[fd].get();
 }

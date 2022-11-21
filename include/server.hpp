@@ -20,18 +20,17 @@ class Server
 public:
     // Server(std::string host, uint16_t port);
     Server(Address);
-    Server(const Server&) = delete;
-    Server(Server&&) =  delete;
-    Server& operator=(Server&&) = delete;
-    Server& operator=(const Server&) = delete;
+    Server(const Server &) = delete;
+    Server(Server &&) = delete;
+    Server &operator=(Server &&) = delete;
+    Server &operator=(const Server &) = delete;
     ~Server();
     void setOnConn(std::function<void(Context *)>);
     void setOnRecv(std::function<void(Context *)>);
     void serve();
     const Context &contextCreator(int fd, Address addr);
-    Reactor* schedule(int fd);
+    Reactor *schedule(int fd);
     void contextDestroyer(int fd);
-   
 
 private:
     Address __addr;

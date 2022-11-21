@@ -18,9 +18,7 @@ Acceptor::Acceptor(Address &address, std::function<const Context &(int, Address)
 Acceptor::Acceptor(Acceptor &&other) : __socket(std::move(other.__socket)),
                                        __ioc(std::move(other.__ioc)),
                                        __address(std::move(other.__address)),
-                                       __contextCreator(std::move(other.__contextCreator)){}
-
-
+                                       __contextCreator(std::move(other.__contextCreator)) {}
 
 void Acceptor::AcceptConnection()
 {

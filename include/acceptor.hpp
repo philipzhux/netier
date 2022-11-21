@@ -13,20 +13,22 @@
 #include <functional>
 class Context;
 
-class Acceptor {
-    public:
-    Acceptor(Address& address, std::function<const Context&(int,Address)> contextCreator);
-    Acceptor(Acceptor&&);
-    Acceptor(const Acceptor&) = delete;
-    Acceptor& operator=(Acceptor&&) = delete;
+class Acceptor
+{
+public:
+    Acceptor(Address &address, std::function<const Context &(int, Address)> contextCreator);
+    Acceptor(Acceptor &&);
+    Acceptor(const Acceptor &) = delete;
+    Acceptor &operator=(Acceptor &&) = delete;
     ~Acceptor();
     void AcceptConnection();
-    const Address& getAddress();
+    const Address &getAddress();
     std::function<void(void)> getMainLoop();
-    private:
-    const Address& __address;
+
+private:
+    const Address &__address;
     Reactor __reactor;
     std::unique_ptr<IOContext> __ioc;
     std::unique_ptr<Socket> __socket;
-    std::function<const Context&(int,Address)> __contextCreator;
+    std::function<const Context &(int, Address)> __contextCreator;
 };

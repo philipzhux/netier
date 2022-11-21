@@ -11,10 +11,12 @@
 Buffer::Buffer() {}
 Buffer::~Buffer() {}
 
-Buffer::Buffer(Buffer&& other) :__buffer(std::move(other.__buffer)) {}
+Buffer::Buffer(Buffer &&other) : __buffer(std::move(other.__buffer)) {}
 
-Buffer& Buffer::operator=(Buffer&& other) {
-    if(&other==this) return *this;
+Buffer &Buffer::operator=(Buffer &&other)
+{
+    if (&other == this)
+        return *this;
     __buffer = std::move(other.__buffer);
     return *this;
 }

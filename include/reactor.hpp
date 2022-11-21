@@ -25,10 +25,11 @@ class Reactor
 private:
     Epoll __ep;
     int __moved;
+
 public:
     Reactor();
-    Reactor(Reactor&&);
-    Reactor(const Reactor&) = delete;
+    Reactor(Reactor &&);
+    Reactor(const Reactor &) = delete;
     ~Reactor();
     void addIOContext(IOContext *);
     void delIOContext(IOContext *);

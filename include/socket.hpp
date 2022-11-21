@@ -11,18 +11,20 @@
 
 #define MAX_EVENTS 1024
 
-class Socket {
-    private:
+class Socket
+{
+private:
     int fd;
-    public:
+
+public:
     Socket();
     Socket(int);
     Socket(bool);
-    Socket(Socket&&);
-    int accept(Address& addr);
+    Socket(Socket &&);
+    int accept(Address &addr);
     int getFd() const;
     void listen();
-    void bind(const Address&);
+    void bind(const Address &);
     void setBlocking(bool);
     size_t recvBufSize() const;
     ~Socket();
