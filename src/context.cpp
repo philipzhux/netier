@@ -5,6 +5,7 @@
  */
 
 #include "context.hpp"
+#include <iostream>
 
 Context::Context(int cfd, Address address, Reactor *reactor,
                  std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy) : __socket(std::make_unique<Socket>(cfd)),
@@ -20,15 +21,25 @@ Context::Context(int cfd, Address address, Reactor *reactor,
     __ioContext->enableRead(); // register ioContext on reactor and therefore epoll
     __ioContext->enableWrite();
     __ioContext->setET();
+    __ioContext->setReadCallback(std::bind(&Context::handleReadableEvent,this));
     __state = VALID;
     if(__onConn) __onConn(this);
 }
 
+Context::Context(Context&& other):  __ioContext(std::move(other.__ioContext)),
+__state(other.__state)
+{
+    other.__state = MOVED;
+}
+
+
 Context::~Context() {}
+
 
 void Context::flushWriteBuffer()
 {
-    size_t bytes_written;
+    assert(__state!=MOVED);
+    int bytes_written;
     while (__wbuffer->size() > 0)
     {
         bytes_written = ::write(__socket_fd, __wbuffer->getReader(), __wbuffer->size());
@@ -59,23 +70,30 @@ void Context::flushWriteBuffer()
 
 void Context::handleReadableEvent()
 {
+    assert(__state!=MOVED);
     int fd = __socket->getFd();
-    size_t bytes_read;
+    int bytes_read;
     while (1)
     {
-        void *writer = __buffer->getWriter(1024);
-        bytes_read = ::read(fd, writer, 1024);
+        printf("Enter loop\n");
+        void *writer = __buffer->getWriter(Context::read_buf_size);
+        bytes_read = ::read(fd, writer, Context::read_buf_size);
         if (bytes_read > 0)
         {
-            if (Context::read_buf_size - bytes_read > 0)
+            if (Context::read_buf_size > bytes_read) 
+            {
                 __buffer->shrink(Context::read_buf_size - bytes_read);
+            }
+                
         }
         else if (bytes_read == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
         {
+            __buffer->shrink(Context::read_buf_size);
             break;
         }
         else if (bytes_read == 0)
         {
+            __buffer->shrink(Context::read_buf_size);
             __state = CLOSED;
             printf("read EOF, client fd %d disconnected\n", fd);
             this->destory();
@@ -83,30 +101,36 @@ void Context::handleReadableEvent()
         }
         else
         {
+             __buffer->shrink(Context::read_buf_size);
             __state = INVALID;
             printf("Unknown error on fd=%d, socket closed and context destroyed\n", fd);
             this->destory();
             break;
         }
     }
+    //printf("Context::handleReadableEvent(): moved readable data to bufer\n");
     if(__onRecv) __onRecv(this);
 }
 
 void Context::asyncWrite(const void *buf, size_t size)
 {
+    assert(__state!=MOVED);
     __wbuffer->put(buf, size);
     flushWriteBuffer();
 }
 
 ER Context::syncWrite(const void *buf, size_t size)
 {
-    size_t bytes_written;
-    size_t remaining = size;
+    assert(__state!=MOVED);
+    int bytes_written;
+    int remaining = size;
+    printf("Context::syncWrite: size = %ld, __socket_fd = %d\n",size,__socket_fd);
     while (remaining > 0)
     {
         bytes_written = ::write(__socket_fd, buf, remaining);
         if (bytes_written > 0)
         {
+            printf("Context::syncWrite: bytes_written = %d\n",bytes_written);
             remaining -= bytes_written;
         }
         else if (bytes_written == -1 && (errno == EWOULDBLOCK || errno == EAGAIN))
@@ -135,28 +159,33 @@ ER Context::syncWrite(const void *buf, size_t size)
 
 ER Context::write(const std::string &data)
 {
+    assert(__state!=MOVED);
     return syncWrite(data.c_str(), data.size() + 1);
 }
 
 ER Context::write(std::string &&data)
 {
+    assert(__state!=MOVED);
     return write(std::move(data));
 }
 
 ER Context::write(const std::vector<char> &data)
 {
+    assert(__state!=MOVED);
     return syncWrite(data.data(), data.size());
 }
 
 ER Context::write(std::vector<char> &&data)
 {
+    assert(__state!=MOVED);
     return write(std::move(data));
 }
 
 ER Context::writeFile(std::string filePath)
 {
+    assert(__state!=MOVED);
     FILE *file;
-    size_t bytes_read;
+    int bytes_read;
     if (file = ::fopen(filePath.c_str(), "r"))
     {
         while (1)
@@ -182,39 +211,46 @@ ER Context::writeFile(std::string filePath)
 
 ER Context::writeFile(std::string filePath, size_t size)
 {
+    assert(__state!=MOVED);
     return ER::UNIMPLEMENTED;
 }
 
 const Address &Context::getAddress()
 {
+    assert(__state!=MOVED);
     return __address;
 }
 
 std::vector<char> Context::read()
 {
+    assert(__state!=MOVED);
     return std::move(__buffer->get());
 }
 
 std::string Context::readString()
 {
+    assert(__state!=MOVED);
     auto v = __buffer->getInnerVec();
     std::string ret(v.begin(), v.end());
     __buffer->clear();
-    return std::move(ret);
+    return ret;
 }
 
 Context::State Context::getState()
 {
+    assert(__state!=MOVED);
     return __state;
 }
 
 void Context::setOnRecv(std::function<void(Context *)> onRecv)
 {
+    assert(__state!=MOVED);
     __onRecv = std::move(onRecv);
 }
 
 void Context::destory()
 {
+    assert(__state!=MOVED);
     __destroyContext(__socket_fd);
 }
 

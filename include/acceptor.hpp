@@ -16,6 +16,9 @@ class Context;
 class Acceptor {
     public:
     Acceptor(Address& address, std::function<const Context&(int,Address)> contextCreator);
+    Acceptor(Acceptor&&);
+    Acceptor(const Acceptor&) = delete;
+    Acceptor& operator=(Acceptor&&) = delete;
     ~Acceptor();
     void AcceptConnection();
     const Address& getAddress();

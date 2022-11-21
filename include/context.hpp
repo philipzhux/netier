@@ -22,7 +22,8 @@ public:
     {
         INVALID,
         VALID,
-        CLOSED
+        CLOSED,
+        MOVED
     };
 
 private:
@@ -42,6 +43,9 @@ private:
 public:
     Context(int cfd, Address address, Reactor *reactor,
             std::function<void(Context *)> onConenct, std::function<void(int)> onDestroy);
+    Context(Context&&);
+    Context(const Context&) = delete;
+    Context& operator=(Context&&) = delete;
     ~Context();
     void handleReadableEvent(); // passed to iocontext
     void flushWriteBuffer();    // passed to iocontext
