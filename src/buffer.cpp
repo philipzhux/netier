@@ -6,6 +6,18 @@
 
 #include "buffer.hpp"
 #include <assert.h>
+#include <stdio.h>
+
+Buffer::Buffer() {}
+Buffer::~Buffer() {}
+
+Buffer::Buffer(Buffer&& other) :__buffer(std::move(other.__buffer)) {}
+
+Buffer& Buffer::operator=(Buffer&& other) {
+    if(&other==this) return *this;
+    __buffer = std::move(other.__buffer);
+    return *this;
+}
 
 void *Buffer::getWriter(size_t size)
 {
@@ -56,6 +68,8 @@ void Buffer::clear()
 
 void Buffer::shrink(size_t size)
 {
+    // printf("Buffer::shrink(): size of buffer = %ld\n",__buffer.size());
+    // printf("Buffer::shrink(): trying to shrink to size %ld\n",__buffer.size() - size);
     assert(size <= __buffer.size());
     __buffer.resize(__buffer.size() - size);
 }

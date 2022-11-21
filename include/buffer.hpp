@@ -14,7 +14,10 @@ private:
 
 public:
     Buffer();
+    Buffer(Buffer&&);
+    Buffer(const Buffer&) = delete;
     ~Buffer();
+    Buffer& operator=(Buffer&& other);
     void put(const void *buf, size_t size);
     void *getWriter(size_t size);
     const void *getReader();

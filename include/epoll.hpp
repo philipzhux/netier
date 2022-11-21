@@ -10,6 +10,7 @@
 #include "socket.hpp"
 #include "error.hpp"
 #include <vector>
+#include <memory>
 #define MAX_EVENTS 1024
 
 class IOContext;
@@ -18,12 +19,15 @@ class Epoll
 {
 private:
     int epfd;
-    epoll_event *events;
+    std::unique_ptr<epoll_event[]> events;
+    //epoll_event *events;
     int waitEvents();
     epoll_event *getEvents();
 
 public:
     Epoll();
+    Epoll(Epoll&&);
+    Epoll(const Epoll&) = delete;
     ~Epoll();
     std::vector<IOContext *> poll();
     void addIOContext(IOContext *ioc);

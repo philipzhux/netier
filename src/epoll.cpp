@@ -7,20 +7,29 @@
 #include "epoll.hpp"
 #include "io_context.hpp"
 
+
 Epoll::Epoll() {
     epfd = epoll_create1(0);
-    events = new struct epoll_event[MAX_EVENTS];
+    events = std::make_unique<struct epoll_event[]>(MAX_EVENTS);
+    //events = new struct epoll_event[MAX_EVENTS];
     printf("epoll with epfd  = %d initialized.\n",epfd);
 }
 
+Epoll::Epoll(Epoll&& e) {
+    epfd = e.epfd;
+    events = std::move(e.events);
+    e.epfd = -1;
+}
+
 Epoll::~Epoll() {
-    close(epfd);
-    delete[] events;
-    printf("epoll with epfd  = %d destroyed.\n",epfd);
+    if(epfd>=0) {
+        close(epfd);
+        printf("epoll with epfd  = %d destroyed.\n",epfd);
+    }
 }
 
 void Epoll::addIOContext(IOContext* c) {
-    if(c->isRegistered()) {
+    if(!c->isRegistered()) {
         add(c,c->getEvents());
         c->setRegister();
     } else {
@@ -43,6 +52,7 @@ void Epoll::add(IOContext* c,uint32_t events) {
     struct epoll_event ev;
     ev.data.ptr = (void*)c;
     ev.events = events;
+    printf("epoll add monitered fd %d\n",c->getFd());
     errif(epoll_ctl(epfd,EPOLL_CTL_ADD,c->getFd(),&ev)<0,"Epoll::add");
 }
 
@@ -73,7 +83,7 @@ void Epoll::modify(IOContext* c,uint32_t events) {
     struct epoll_event ev;
     ev.data.ptr = (void*)c;
     ev.events = events;
-    errif(epoll_ctl(epfd,EPOLL_CTL_MOD,c->getFd(),&ev)<0,"Epoll::add");
+    errif(epoll_ctl(epfd,EPOLL_CTL_MOD,c->getFd(),&ev)<0,"Epoll::modify");
 }
 
 void Epoll::del(int fd) {
@@ -82,14 +92,14 @@ void Epoll::del(int fd) {
 
 int Epoll::waitEvents(){
     printf("epfd[%d] called waitEvents\n",epfd);
-    int ret = epoll_wait(epfd,events,MAX_EVENTS,-1);
+    int ret = epoll_wait(epfd,events.get(),MAX_EVENTS,-1);
     errif(ret<0,"epoll_wait");
     return ret;
 }
 
 epoll_event* Epoll::getEvents() {
     printf("epfd[%d] called getEvents\n",epfd);
-    return events;
+    return events.get();
 }
 
 std::vector<IOContext*> Epoll::poll() {
