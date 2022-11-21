@@ -6,22 +6,34 @@
 
 #include "server.hpp"
 
-Server::Server(Address addr) : __addr(addr)
+Server::Server(Address addr) : __addr(addr), __moved(0)
 {
-    __acceptor = std::make_unique<Acceptor>(__addr, std::bind(&Server::contextCreator, this, std::placeholders::_1,std::placeholders::_2));
-    __threadpool = std::make_unique<ThreadPool>();
+    __acceptor = std::make_unique<Acceptor>(__addr, std::bind(&Server::contextCreator, this, std::placeholders::_1, std::placeholders::_2));
+    __threadpool = std::make_unique<ThreadPool>(5);
     size_t size = __threadpool->getSize();
     for (size_t i = 0; i < size; i++)
-        __reactors.emplace_back(Reactor{});
+    {
+        printf("loop number %ld\n", i);
+        Reactor reactor{};
+        __reactors.push_back(std::move(reactor));
+    }
 }
+
+// Server::Server(Server &&other) : __addr(std::move(other.__addr)),
+//                                  __acceptor(std::move(other.__acceptor)),
+//                                  __threadpool(std::move(other.__threadpool)),
+//                                  __reactors(std::move(other.__reactors)),
+//                                  __contextes(std::move(other.__contextes)),
+//                                  __moved(0) { other.__moved = 1; }
+
+
 
 void Server::serve()
 {
     size_t size = __threadpool->getSize();
     for (size_t i = 0; i < size; i++)
-        __threadpool->asyncRunJob(std::bind(&Reactor::loop,&__reactors[i]));
-    
-
+        __threadpool->asyncRunJob(std::bind(&Reactor::loop, &__reactors[i]));
+    __acceptor->getMainLoop()();
 }
 
 const Context &Server::contextCreator(int fd, Address addr)
@@ -29,6 +41,7 @@ const Context &Server::contextCreator(int fd, Address addr)
     std::unique_ptr<Context> newContext =
         std::make_unique<Context>(fd, std::move(addr), schedule(fd),
                                   __onConn, std::bind(&Server::contextDestroyer, this, std::placeholders::_1));
+    if(__onRecv) newContext->setOnRecv(__onRecv);
     __contextes[fd] = std::move(newContext);
     return *__contextes[fd].get();
 }
@@ -51,4 +64,12 @@ void Server::setOnConn(std::function<void(Context *)> onConn)
 void Server::setOnRecv(std::function<void(Context *)> onRecv)
 {
     __onRecv = std::move(onRecv);
+}
+
+Server::~Server()
+{
+    for (auto &t : __contextes)
+    {
+        __contextes.erase(t.first);
+    }
 }

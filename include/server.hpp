@@ -20,6 +20,10 @@ class Server
 public:
     // Server(std::string host, uint16_t port);
     Server(Address);
+    Server(const Server&) = delete;
+    Server(Server&&) =  delete;
+    Server& operator=(Server&&) = delete;
+    Server& operator=(const Server&) = delete;
     ~Server();
     void setOnConn(std::function<void(Context *)>);
     void setOnRecv(std::function<void(Context *)>);
@@ -37,4 +41,5 @@ private:
     std::unordered_map<int, std::unique_ptr<Context>> __contextes; // a context is binded with a reactor at create time
     std::function<void(Context *)> __onConn;
     std::function<void(Context *)> __onRecv;
+    int __moved;
 };
