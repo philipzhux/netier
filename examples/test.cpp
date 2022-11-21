@@ -15,7 +15,11 @@ int main()
 
             std::string msg = c->readString();
             std::cout << msg << std::endl;
-            c->write(msg);
+            if (!msg.empty() && msg[msg.length() - 1] == '\n')
+            {
+                msg.erase(msg.length() - 1);
+            }
+            c->writeFile(msg);
         });
     s.serve();
 }
