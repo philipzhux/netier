@@ -36,7 +36,6 @@ private:
     std::function<void(Context *)> __onConn;
     std::function<void(Context *)> __onRecv;
     Reactor *__reactor;
-    int __socket_fd;
     State __state;
     static const size_t read_buf_size = 1024;
 

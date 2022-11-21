@@ -76,6 +76,15 @@ void Address::setAddress(std::string ip, uint16_t port)
         __addrLen = sizeof(__addr);
 }
 
+void Address::setAddress(std::string ip, uint16_t port, Address_type type)
+{       
+        __address_type = type;
+        __addr.sin_addr.s_addr = inet_addr(ip.c_str());
+        __addr.sin_family = __address_type;
+        __addr.sin_port = htons(port);
+        __addrLen = sizeof(__addr);
+}
+
 std::string Address::getHostString() const
 {
         return ::inet_ntoa(__addr.sin_addr);

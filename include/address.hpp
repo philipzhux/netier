@@ -30,6 +30,7 @@ class Address {
     std::string getHostString() const;
     uint16_t getPort() const;
     void setAddress (std::string ip,uint16_t port);
+    void setAddress(std::string ip, uint16_t port, Address_type type);
     private:
     struct sockaddr_in __addr;
     socklen_t __addrLen;
