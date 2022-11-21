@@ -18,6 +18,7 @@ class Socket {
     Socket();
     Socket(int);
     Socket(bool);
+    Socket(Socket&&);
     int accept(Address& addr);
     int getFd() const;
     void listen();

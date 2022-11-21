@@ -26,6 +26,8 @@ class IOContext {
     bool __registered;
     public:
     IOContext(Reactor*,int);
+    IOContext(IOContext&&);
+    IOContext(const IOContext&) = delete;
     ~IOContext();
     void enableRead();
     void enableWrite();
