@@ -10,13 +10,19 @@
 #include <string.h>
 
 class Address {
-    private:
-    struct sockaddr_in addr;
-    socklen_t addrLen;
 
     public:
+    enum Address_type {
+        IPV4 = AF_INET,
+        IPV6 = AF_INET6
+    };
     Address();
+    Address(Address&&);
+    Address(const Address&);
+    Address(std::string host, uint16_t port, Address_type addrType);
     Address(std::string host,uint16_t port);
+    Address& operator=(Address&&);
+    Address& operator=(const Address&);
     const struct sockaddr_in & getAddr() const;
     const socklen_t & getAddrLen() const;
     sockaddr* getAddrPtr();
@@ -24,4 +30,9 @@ class Address {
     std::string getHostString() const;
     uint16_t getPort() const;
     void setAddress (std::string ip,uint16_t port);
+    private:
+    struct sockaddr_in __addr;
+    socklen_t __addrLen;
+    Address_type __address_type;
+    
 };
