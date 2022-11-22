@@ -2,12 +2,12 @@
 #include <iostream>
 
 int main() {
-  Server s({"127.0.0.1", 18088});
-  s.setOnConn([](Context *c) {
+  netier::Server s({"127.0.0.1", 18088});
+  s.setOnConn([](netier::Context *c) {
     std::cout << "New Client at " << c->getAddress().getAddressString()
               << std::endl;
   });
-  s.setOnRecv([](Context *c) {
+  s.setOnRecv([](netier::Context *c) {
     std::cout << "Recv message by " << c->getAddress().getAddressString()
               << std::endl;
 

@@ -5,7 +5,8 @@
  */
 #pragma once
 
-enum class ER
+namespace netier{
+  enum class ER
 {
   UNDEFINED,
   SUCCESS,
@@ -16,3 +17,4 @@ enum class ER
   UNIMPLEMENTED,
   FILE_ERROR
 };
+}

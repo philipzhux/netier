@@ -9,6 +9,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+namespace netier {
+
+
 #define MAX_EVENTS 1024
 
 class Socket
@@ -29,3 +32,4 @@ public:
     size_t recvBufSize() const;
     ~Socket();
 };
+} // namespace netier

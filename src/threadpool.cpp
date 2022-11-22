@@ -6,6 +6,8 @@
 
 #include "threadpool.hpp"
 
+namespace netier {
+
 ThreadPool::ThreadPool(unsigned int size) : __stop(false) {
   for (unsigned int i = 0; i < size; i++) {
     __threads.emplace_back(std::thread([this]() {
@@ -37,3 +39,4 @@ ThreadPool::~ThreadPool() {
       t.join();
   }
 }
+} // namespace netier

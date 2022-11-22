@@ -7,6 +7,8 @@
 #include "address.hpp"
 #include "utils.hpp"
 
+namespace netier {
+
 Address::Address(std::string host, uint16_t port, Address_type addrType)
     : Address() {
   __address_type = addrType;
@@ -78,3 +80,5 @@ std::string Address::getAddressString() const {
 }
 
 uint16_t Address::getPort() const { return ::ntohs(__addr.sin_port); }
+
+} // namespace netier

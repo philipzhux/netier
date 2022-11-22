@@ -10,6 +10,9 @@
 #include <assert.h>
 #include <epoll.hpp>
 
+namespace netier {
+
+
 class IOContext;
 
 /*
@@ -37,3 +40,4 @@ public:
     void loop();
     // an infinite loop
 };
+} // namespace netier

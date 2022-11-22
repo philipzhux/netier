@@ -7,6 +7,8 @@
 #include "server.hpp"
 #include <iostream>
 
+namespace netier {
+
 Server::Server(Address addr) : __addr(addr), __moved(0) {
   __acceptor = std::make_unique<Acceptor>(
       __addr, std::bind(&Server::contextCreator, this, std::placeholders::_1,
@@ -64,3 +66,5 @@ Server::~Server() {
     __contextes.erase(t.first);
   }
 }
+
+} // namespace netier

@@ -9,6 +9,9 @@
 #include <string>
 #include <string.h>
 
+namespace netier {
+
+
 class Address
 {
 
@@ -40,3 +43,4 @@ private:
     socklen_t __addrLen;
     Address_type __address_type;
 };
+} // namespace netier

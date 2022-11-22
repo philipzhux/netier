@@ -7,6 +7,8 @@
 #include "reactor.hpp"
 #include "io_context.hpp"
 
+namespace netier {
+
 Reactor::Reactor() : __moved(0) {
   // printf("reactor created\n");
 }
@@ -39,3 +41,5 @@ void Reactor::loop() {
     }
   }
 }
+
+} // namespace netier

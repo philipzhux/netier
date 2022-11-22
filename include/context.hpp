@@ -14,6 +14,9 @@
 #include <functional>
 #include <memory>
 
+namespace netier {
+
+
 class Context
 {
 public:
@@ -45,8 +48,8 @@ public:
     Context(const Context &) = delete;
     Context &operator=(Context &&) = delete;
     ~Context();
-    void handleReadableEvent(); // passed to iocontext
-    void flushWriteBuffer();    // passed to iocontext
+    int handleReadableEvent(); // passed to iocontext
+    int flushWriteBuffer();    // passed to iocontext
     void asyncWrite(const void *, size_t);
     ER syncWrite(const void *, size_t);
     ER write(const std::string &data);
@@ -63,3 +66,4 @@ public:
     void setOnRecv(std::function<void(Context *)>);
     void destroy();
 };
+} // namespace netier

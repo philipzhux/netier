@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <sys/ioctl.h>
 
+namespace netier {
+
 Socket::Socket() {
   fd = socket(AF_INET, SOCK_STREAM, 0);
   // printf("socket with fd %d initialized.\n",fd);
@@ -91,3 +93,5 @@ Socket::Socket(bool block) : Socket() {
   assert(fd > 0);
   setBlocking(block);
 }
+
+} // namespace netier

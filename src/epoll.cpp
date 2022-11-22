@@ -9,7 +9,6 @@
 
 namespace netier {
 
-
 Epoll::Epoll() {
   epfd = epoll_create1(0);
   events = std::make_unique<struct epoll_event[]>(MAX_EVENTS);

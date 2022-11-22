@@ -12,6 +12,9 @@
 #include <vector>
 #include <queue>
 #include <stdexcept>
+
+namespace netier {
+
 class ThreadPool
 {
 
@@ -51,3 +54,5 @@ private:
     std::condition_variable __qchange;
     bool __stop;
 };
+
+} // namespace netier

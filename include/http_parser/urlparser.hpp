@@ -11,6 +11,9 @@
 #include <stdint.h>
 #include <assert.h>
 
+namespace netier {
+
+
 namespace httpparser
 {
 
@@ -369,3 +372,4 @@ private:
 } // namespace httpparser
 
 #endif // HTTPPARSER_URLPARSER_H
+} // namespace netier

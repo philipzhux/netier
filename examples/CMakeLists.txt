@@ -1,0 +1,3 @@
+add_executable(trivial_file EXCLUDE_FROM_ALL trivial_file.cpp)
+add_dependencies(trivial_file netier_shared)
+target_link_libraries(trivial_file netier_shared)

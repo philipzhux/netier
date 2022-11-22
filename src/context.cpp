@@ -7,6 +7,8 @@
 #include "context.hpp"
 #include <iostream>
 
+namespace netier {
+
 Context::Context(int cfd, Address address, Reactor *reactor,
                  std::function<void(Context *)> onConenct,
                  std::function<void(int)> onDestroy)
@@ -34,7 +36,7 @@ Context::Context(Context &&other)
 
 Context::~Context() {}
 
-void Context::flushWriteBuffer() {
+int Context::flushWriteBuffer() {
   assert(__state != MOVED);
   int bytes_written;
   int __socket_fd = __socket->getFd();
@@ -52,19 +54,21 @@ void Context::flushWriteBuffer() {
           "[Context::flushWriteBuffer] Read EOF, client fd %d disconnected\n",
           __socket_fd);
       this->destroy();
-      break;
+      return -1;
     } else {
       __state = INVALID;
-      printf("Context::flushWriteBuffer] Unknown error on fd=%d, socket closed "
-             "and context destroyed\n",
-             __socket_fd);
+      printf(
+          "[Context::flushWriteBuffer] Unknown error on fd=%d, socket closed "
+          "and context destroyed\n",
+          __socket_fd);
       this->destroy();
-      break;
+      return -1;
     }
   }
+  return 0;
 }
 
-void Context::handleReadableEvent() {
+int Context::handleReadableEvent() {
   assert(__state != MOVED);
   int fd = __socket->getFd();
   int bytes_read;
@@ -85,7 +89,7 @@ void Context::handleReadableEvent() {
              "disconnected\n",
              fd);
       this->destroy();
-      return;
+      return -1;
     } else {
       __buffer->shrink(Context::read_buf_size);
       __state = INVALID;
@@ -93,12 +97,13 @@ void Context::handleReadableEvent() {
              "closed and context destroyed\n",
              fd);
       this->destroy();
-      return;
+      return -1;
     }
   }
   // printf("Context::handleReadableEvent(): moved readable data to bufer\n");
   if (__onRecv)
     __onRecv(this);
+  return 0;
 }
 
 void Context::asyncWrite(const void *buf, size_t size) {
@@ -184,7 +189,8 @@ ER Context::writeFile(std::string filePath) {
 
 ER Context::writeFile(std::string filePath, size_t size) {
   assert(__state != MOVED);
-  if(filePath.size()==size) return ER::UNIMPLEMENTED;
+  if (filePath.size() == size)
+    return ER::UNIMPLEMENTED;
   return ER::UNIMPLEMENTED;
 }
 
@@ -222,3 +228,4 @@ void Context::destroy() {
             << getAddress().getAddressString() << std::endl;
   __destroyContext(__socket->getFd());
 }
+} // namespace netier

@@ -7,6 +7,9 @@
 
 #include <queue>
 #include <vector>
+
+namespace netier {
+
 class Buffer
 {
 private:
@@ -29,3 +32,4 @@ public:
     void clear();
     size_t size();
 };
+} // namespace netier

@@ -15,6 +15,9 @@
 #include <string>
 #include <functional>
 
+namespace netier {
+
+
 class Server
 {
 public:
@@ -42,3 +45,4 @@ private:
     std::function<void(Context *)> __onRecv;
     int __moved;
 };
+} // namespace netier

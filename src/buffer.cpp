@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+namespace netier {
+
 Buffer::Buffer() {}
 Buffer::~Buffer() {}
 
@@ -64,3 +66,5 @@ void Buffer::shrink(size_t size) {
 }
 
 size_t Buffer::size() { return __buffer.size(); }
+
+} // namespace netier
