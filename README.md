@@ -1,4 +1,4 @@
-# Netier: Event-driven TCP Server Framework with Reactor Pattern
+# Netier: Event-driven TCP Server Framework
 
 The design follows the reactor patterns, RAII principles, and encapsulate I/O multiplexed tcp socket read write handle logic into classes of Address, Socket, Epoll, ThreadPoll, IOContext, Context, Buffer, Reactor, and Acceptor.
 
