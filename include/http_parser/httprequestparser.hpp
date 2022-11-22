@@ -12,8 +12,6 @@
 
 #include "request.hpp"
 
-namespace netier {
-
 
 namespace httpparser
 {
@@ -625,4 +623,4 @@ private:
 } // namespace httpparser
 
 #endif // LIBAHTTP_REQUESTPARSER_H
-} // namespace netier
+

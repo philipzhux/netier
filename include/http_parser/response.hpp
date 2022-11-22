@@ -10,8 +10,6 @@
 #include <vector>
 #include <sstream>
 
-namespace netier {
-
 
 namespace httpparser
 {
@@ -57,4 +55,3 @@ struct Response {
 } // namespace httpparser
 
 #endif // HTTPPARSER_RESPONSE_H
-} // namespace netier

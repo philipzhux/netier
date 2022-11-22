@@ -10,8 +10,6 @@
 #include <vector>
 #include <sstream>
 
-namespace netier {
-
 
 namespace httpparser
 {
@@ -58,4 +56,3 @@ struct Request {
 
 
 #endif // HTTPPARSER_REQUEST_H
-} // namespace netier

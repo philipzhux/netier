@@ -13,8 +13,6 @@
 
 #include "response.hpp"
 
-namespace netier {
-
 
 namespace httpparser
 {
@@ -610,4 +608,3 @@ private:
 } // namespace httpparser
 
 #endif // HTTPPARSER_RESPONSEPARSER_H
-} // namespace netier
