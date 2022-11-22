@@ -11,6 +11,9 @@
 #include "error.hpp"
 #include <vector>
 #include <memory>
+
+namespace netier {
+
 #define MAX_EVENTS 1024
 
 class IOContext;
@@ -41,3 +44,5 @@ public:
     void modify(IOContext *c, uint32_t events);
     void del(int fd);
 };
+
+} // namespace netier
