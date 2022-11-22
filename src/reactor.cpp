@@ -7,43 +7,35 @@
 #include "reactor.hpp"
 #include "io_context.hpp"
 
-Reactor::Reactor() : __moved(0)
-{
-    // printf("reactor created\n");
+Reactor::Reactor() : __moved(0) {
+  // printf("reactor created\n");
 }
 
-Reactor::Reactor(Reactor &&r) : __ep(std::move(r.__ep)), __moved(0)
-{
-    r.__moved = 1;
+Reactor::Reactor(Reactor &&r) : __ep(std::move(r.__ep)), __moved(0) {
+  r.__moved = 1;
 }
 
-Reactor::~Reactor()
-{
-    if (!__moved)
-        printf("reactor destroyed\n");
+Reactor::~Reactor() {
+  if (!__moved)
+    printf("reactor destroyed\n");
 }
 
-void Reactor::addIOContext(IOContext *ioc)
-{
-    assert(!__moved);
-    __ep.addIOContext(ioc);
+void Reactor::addIOContext(IOContext *ioc) {
+  assert(!__moved);
+  __ep.addIOContext(ioc);
 }
 
-void Reactor::delIOContext(IOContext *ioc)
-{
-    assert(!__moved);
-    __ep.delIOContext(ioc);
+void Reactor::delIOContext(IOContext *ioc) {
+  assert(!__moved);
+  __ep.delIOContext(ioc);
 }
 
-void Reactor::loop()
-{
-    assert(!__moved);
-    while (1)
-    {
-        auto io_contextes = __ep.poll();
-        for (auto &ioc : io_contextes)
-        {
-            ioc->handleGeneral();
-        }
+void Reactor::loop() {
+  assert(!__moved);
+  while (1) {
+    auto io_contextes = __ep.poll();
+    for (auto &ioc : io_contextes) {
+      ioc->handleGeneral();
     }
+  }
 }

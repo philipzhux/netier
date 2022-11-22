@@ -7,97 +7,74 @@
 #include "address.hpp"
 #include "utils.hpp"
 
-Address::Address(std::string host, uint16_t port, Address_type addrType) : Address()
-{
-        __address_type = addrType;
-        setAddress(host, port);
+Address::Address(std::string host, uint16_t port, Address_type addrType)
+    : Address() {
+  __address_type = addrType;
+  setAddress(host, port);
 }
-Address::Address(std::string host, uint16_t port) : Address()
-{
-        setAddress(host, port);
-}
-
-Address::Address() : __address_type(IPV4)
-{
-        memset(&__addr, 0, sizeof(__addr));
-        memset(&__addrLen, 0, sizeof(__addrLen));
+Address::Address(std::string host, uint16_t port) : Address() {
+  setAddress(host, port);
 }
 
-Address::Address(Address &&other) : __address_type(std::move(other.__address_type)),
-                                    __addr(std::move(other.__addr)),
-                                    __addrLen(std::move(other.__addrLen)) {}
-
-Address::Address(const Address &other) : __address_type(other.__address_type),
-                                         __addr(other.__addr),
-                                         __addrLen(other.__addrLen) {}
-
-Address &Address::operator=(Address &&other)
-{
-        if (this == &other)
-                return *this;
-        __address_type = std::move(other.__address_type);
-        __addr = std::move(other.__addr);
-        __addrLen = std::move(other.__addrLen);
-        return *this;
-}
-Address &Address::operator=(const Address &other)
-{
-        if (this == &other)
-                return *this;
-        __address_type = other.__address_type;
-        __addr = other.__addr;
-        __addrLen = other.__addrLen;
-        return *this;
+Address::Address() : __address_type(IPV4) {
+  memset(&__addr, 0, sizeof(__addr));
+  memset(&__addrLen, 0, sizeof(__addrLen));
 }
 
-const struct sockaddr_in &Address::getAddr() const
-{
-        return __addr;
+Address::Address(Address &&other)
+    : __address_type(std::move(other.__address_type)),
+      __addr(std::move(other.__addr)), __addrLen(std::move(other.__addrLen)) {}
+
+Address::Address(const Address &other)
+    : __address_type(other.__address_type), __addr(other.__addr),
+      __addrLen(other.__addrLen) {}
+
+Address &Address::operator=(Address &&other) {
+  if (this == &other)
+    return *this;
+  __address_type = std::move(other.__address_type);
+  __addr = std::move(other.__addr);
+  __addrLen = std::move(other.__addrLen);
+  return *this;
+}
+Address &Address::operator=(const Address &other) {
+  if (this == &other)
+    return *this;
+  __address_type = other.__address_type;
+  __addr = other.__addr;
+  __addrLen = other.__addrLen;
+  return *this;
 }
 
-const socklen_t &Address::getAddrLen() const
-{
-        return __addrLen;
+const struct sockaddr_in &Address::getAddr() const { return __addr; }
+
+const socklen_t &Address::getAddrLen() const { return __addrLen; }
+
+sockaddr *Address::getAddrPtr() { return (sockaddr *)&__addr; }
+
+socklen_t *Address::getAddrLenPtr() { return &__addrLen; }
+
+void Address::setAddress(std::string ip, uint16_t port) {
+  __addr.sin_addr.s_addr = inet_addr(ip.c_str());
+  __addr.sin_family = __address_type;
+  __addr.sin_port = htons(port);
+  __addrLen = sizeof(__addr);
 }
 
-sockaddr *Address::getAddrPtr()
-{
-        return (sockaddr *)&__addr;
+void Address::setAddress(std::string ip, uint16_t port, Address_type type) {
+  __address_type = type;
+  __addr.sin_addr.s_addr = inet_addr(ip.c_str());
+  __addr.sin_family = __address_type;
+  __addr.sin_port = htons(port);
+  __addrLen = sizeof(__addr);
 }
 
-socklen_t *Address::getAddrLenPtr()
-{
-        return &__addrLen;
+std::string Address::getHostString() const {
+  return ::inet_ntoa(__addr.sin_addr);
 }
 
-void Address::setAddress(std::string ip, uint16_t port)
-{
-        __addr.sin_addr.s_addr = inet_addr(ip.c_str());
-        __addr.sin_family = __address_type;
-        __addr.sin_port = htons(port);
-        __addrLen = sizeof(__addr);
+std::string Address::getAddressString() const {
+  return string_format("%s:%d", ::inet_ntoa(__addr.sin_addr), int(getPort()));
 }
 
-void Address::setAddress(std::string ip, uint16_t port, Address_type type)
-{
-        __address_type = type;
-        __addr.sin_addr.s_addr = inet_addr(ip.c_str());
-        __addr.sin_family = __address_type;
-        __addr.sin_port = htons(port);
-        __addrLen = sizeof(__addr);
-}
-
-std::string Address::getHostString() const
-{
-        return ::inet_ntoa(__addr.sin_addr);
-}
-
-std::string Address::getAddressString() const
-{
-        return string_format("%s:%d", ::inet_ntoa(__addr.sin_addr), int(getPort()));
-}
-
-uint16_t Address::getPort() const
-{
-        return ::ntohs(__addr.sin_port);
-}
+uint16_t Address::getPort() const { return ::ntohs(__addr.sin_port); }
