@@ -11,6 +11,9 @@
 #include "io_context.hpp"
 #include <memory>
 #include <functional>
+
+namespace netier {
+
 class Context;
 
 class Acceptor
@@ -32,3 +35,4 @@ private:
     std::unique_ptr<Socket> __socket;
     std::function<const Context &(int, Address)> __contextCreator;
 };
+} // namespace netier

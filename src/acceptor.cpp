@@ -5,14 +5,20 @@
  */
 #include "acceptor.hpp"
 
+namespace netier {
+
 Acceptor::Acceptor(Address &address,
                    std::function<const Context &(int, Address)> contextCreator)
     : __contextCreator(contextCreator), __address(address) {
   __socket = std::make_unique<Socket>();
   __socket->bind(__address);
+  __socket->setBlocking(false);
   __ioc = std::make_unique<IOContext>(&__reactor, __socket->getFd());
   __ioc->enableRead();
-  __ioc->setReadCallback(std::bind(&Acceptor::AcceptConnection, this));
+  __ioc->setReadCallback([this]() {
+    this->AcceptConnection();
+    return 0;
+  });
   __socket->listen();
 }
 
@@ -35,3 +41,4 @@ std::function<void(void)> Acceptor::getMainLoop() {
 }
 
 Acceptor::~Acceptor() {}
+} // namespace netier

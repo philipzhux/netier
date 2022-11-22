@@ -7,6 +7,9 @@
 #include <functional>
 #include "reactor.hpp"
 
+namespace netier {
+
+
 class Epoll;
 /*
  * IOContext encapsulates an fd to be monitored by epoll
@@ -22,8 +25,8 @@ private:
     int __fd;
     uint32_t __events;
     uint32_t __revents; // return events
-    std::function<void()> __writableCb;
-    std::function<void()> __readableCb;
+    std::function<int()> __writableCb;
+    std::function<int()> __readableCb;
     bool __registered;
 
 public:
@@ -39,10 +42,10 @@ public:
     void setLT();
     void setEvents(uint32_t ev);
     void setRevents(uint32_t ret);
-    void setReadCallback(std::function<void(void)>);
-    void setWriteCallback(std::function<void(void)>);
-    void handleReadable();
-    void handleWritable();
+    void setReadCallback(std::function<int(void)>);
+    void setWriteCallback(std::function<int(void)>);
+    int handleReadable();
+    int handleWritable();
     void handleGeneral();
     uint32_t getEvents();
     uint32_t getRevents();
@@ -53,3 +56,4 @@ public:
     bool isET();
     void setRegister();
 };
+} // namespace netier

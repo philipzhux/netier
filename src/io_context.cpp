@@ -6,11 +6,16 @@
 
 #include "io_context.hpp"
 
+namespace netier {
+
 IOContext::IOContext(Reactor *rt, int fd)
-    : __reactor(rt), __fd(fd), __registered(false) {}
+    : __reactor(rt), __fd(fd), __registered(false), __events(0), __revents(0) {}
 
 IOContext::IOContext(IOContext &&old)
-    : __reactor(old.__reactor), __fd(old.__fd), __registered(old.__registered) {
+    : __reactor(old.__reactor), __fd(old.__fd), __registered(old.__registered),
+      __writableCb(std::move(old.__writableCb)),
+      __readableCb(std::move(old.__readableCb)), __events(old.__events),
+      __revents(old.__revents) {
   old.__reactor = nullptr;
   old.__fd = -1;
 }
@@ -69,8 +74,6 @@ bool IOContext::isET() {
 }
 
 bool IOContext::isWritable() {
-  if (!__reactor)
-    return false;
   assert(__reactor);
   return (getRevents() & EPOLLOUT) != 0;
 }
@@ -103,34 +106,42 @@ void IOContext::setRegister() {
   __registered = true;
 }
 
-void IOContext::setReadCallback(std::function<void(void)> cb) {
+void IOContext::setReadCallback(std::function<int(void)> cb) {
   assert(__reactor);
   __readableCb = cb;
 }
 
-void IOContext::setWriteCallback(std::function<void(void)> cb) {
+void IOContext::setWriteCallback(std::function<int(void)> cb) {
   assert(__reactor);
   __writableCb = cb;
 }
 
-void IOContext::handleWritable() {
+int IOContext::handleWritable() {
   assert(__reactor);
-  if (__writableCb)
-    __writableCb();
+  if (__writableCb) {
+    return __writableCb();
+  }
+  return 0;
 }
 
-void IOContext::handleReadable() {
+int IOContext::handleReadable() {
   assert(__reactor);
   if (__readableCb) {
-    __readableCb();
+    return __readableCb();
   }
+  return 0;
 }
 
 void IOContext::handleGeneral() {
   if (isReadable()) {
-    handleReadable();
+    if (handleReadable() < 0) {
+      return;
+    }
   }
   if (isWritable()) {
-    handleWritable();
+    if (handleWritable() < 0) {
+      return;
+    }
   }
 }
+} // namespace netier
