@@ -87,7 +87,13 @@ void Epoll::del(int fd) {
 
 int Epoll::waitEvents() {
   // printf("epfd[%d] called waitEvents\n",epfd);
-  int ret = epoll_wait(epfd, events.get(), MAX_EVENTS, -1);
+  int ret = 0;
+  while (1) {
+    ret = epoll_wait(epfd, events.get(), MAX_EVENTS, -1);
+    if (ret < 0 && errno == EINTR)
+      continue;
+    break;
+  }
   errif(ret < 0, "epoll_wait");
   return ret;
 }

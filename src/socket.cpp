@@ -51,8 +51,8 @@ void Socket::listen() {
 
 int Socket::accept(Address &a) {
   assert(fd > 0);
-  socklen_t len;
   struct sockaddr_storage addr;
+  socklen_t len = sizeof(addr);
   int ufd = ::accept(fd, (struct sockaddr *)&addr, &len);
   // getpeername(ufd, (struct sockaddr *)&addr, ;
   a.setAddress(reinterpret_cast<const struct sockaddr &>(addr));
