@@ -35,6 +35,7 @@ public:
     std::string getHostString() const;
     std::string getAddressString() const;
     uint16_t getPort() const;
+    void setAddress(const sockaddr& address);
     void setAddress(std::string ip, uint16_t port);
     void setAddress(std::string ip, uint16_t port, Address_type type);
 

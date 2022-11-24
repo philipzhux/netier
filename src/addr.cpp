@@ -56,6 +56,10 @@ sockaddr *Address::getAddrPtr() { return (sockaddr *)&__addr; }
 
 socklen_t *Address::getAddrLenPtr() { return &__addrLen; }
 
+void Address::setAddress(const sockaddr &address) {
+  __addr = reinterpret_cast<const sockaddr_in &>(address);
+  __address_type = Address_type(__addr.sin_family);
+}
 void Address::setAddress(std::string ip, uint16_t port) {
   __addr.sin_addr.s_addr = inet_addr(ip.c_str());
   __addr.sin_family = __address_type;

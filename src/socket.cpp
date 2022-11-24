@@ -52,25 +52,10 @@ void Socket::listen() {
 int Socket::accept(Address &a) {
   assert(fd > 0);
   socklen_t len;
-  int port;
   struct sockaddr_storage addr;
-  char ipstr[INET6_ADDRSTRLEN];
-
-  int ufd = ::accept(fd, nullptr, nullptr);
-  getpeername(ufd, (struct sockaddr *)&addr, &len);
-
-  if (addr.ss_family == AF_INET) {
-    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
-    port = ntohs(s->sin_port);
-    inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
-    a.setAddress(ipstr, port);
-  } else { // AF_INET6
-    struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
-    port = ntohs(s->sin6_port);
-    inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
-    a.setAddress(ipstr, port, Address::Address_type::IPV6);
-  }
-
+  int ufd = ::accept(fd, (struct sockaddr *)&addr, &len);
+  // getpeername(ufd, (struct sockaddr *)&addr, ;
+  a.setAddress(reinterpret_cast<const struct sockaddr &>(addr));
   errif(ufd < 0, "accept");
   return ufd;
 }
