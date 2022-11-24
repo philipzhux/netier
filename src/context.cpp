@@ -24,6 +24,8 @@ Context::Context(int cfd, Address address, Reactor *reactor,
   __ioContext->enableWrite();
   __ioContext->setET();
   __ioContext->setReadCallback(std::bind(&Context::handleReadableEvent, this));
+  __ioContext->setWriteCallback(std::bind(&Context::handleWritableEvent, this));
+
   __state = VALID;
   if (__onConn)
     __onConn(this);
@@ -36,8 +38,19 @@ Context::Context(Context &&other)
 
 Context::~Context() {}
 
-int Context::flushWriteBuffer() {
+int Context::handleWritableEvent() {
   assert(__state != MOVED);
+  int ret;
+  if ((ret = __stateCleanup()) < 0)
+    return ret;
+  flushWriteBuffer();
+  return __stateCleanup();
+}
+
+void Context::flushWriteBuffer() {
+  assert(__state != MOVED);
+  if (__state != VALID)
+    return;
   int bytes_written;
   int __socket_fd = __socket->getFd();
   while (__wbuffer->size() > 0) {
@@ -53,23 +66,33 @@ int Context::flushWriteBuffer() {
       printf(
           "[Context::flushWriteBuffer] Read EOF, client fd %d disconnected\n",
           __socket_fd);
-      this->destroy();
-      return -1;
+      // this->destroy();
+      break;
     } else {
       __state = INVALID;
       printf(
           "[Context::flushWriteBuffer] Unknown error on fd=%d, socket closed "
           "and context destroyed\n",
           __socket_fd);
-      this->destroy();
-      return -1;
+      // this->destroy();
+      break;
     }
+  }
+}
+
+int Context::__stateCleanup() {
+  if (__state == CLOSED || __state == INVALID) {
+    this->destroy();
+    return -1;
   }
   return 0;
 }
 
 int Context::handleReadableEvent() {
   assert(__state != MOVED);
+  int ret;
+  if ((ret = __stateCleanup()) < 0)
+    return ret;
   int fd = __socket->getFd();
   int bytes_read;
   while (1) {
@@ -88,32 +111,40 @@ int Context::handleReadableEvent() {
       printf("[Context::handleReadableEvent] Read EOF, client fd %d "
              "disconnected\n",
              fd);
-      this->destroy();
-      return -1;
+      break;
+      // this->destroy();
+      // return -1;
     } else {
       __buffer->shrink(Context::read_buf_size);
       __state = INVALID;
       printf("[Context::handleReadableEvent] Unknown error on fd=%d, socket "
              "closed and context destroyed\n",
              fd);
-      this->destroy();
-      return -1;
+      break;
+      // this->destroy();
+      // return -1;
     }
   }
   // printf("Context::handleReadableEvent(): moved readable data to bufer\n");
+  if ((ret = __stateCleanup()) < 0)
+    return ret;
   if (__onRecv)
     __onRecv(this);
-  return 0;
+  return __stateCleanup();
 }
 
 void Context::asyncWrite(const void *buf, size_t size) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return;
   __wbuffer->put(buf, size);
   flushWriteBuffer();
 }
 
 ER Context::syncWrite(const void *buf, size_t size) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   int bytes_written;
   int remaining = size;
   int __socket_fd = __socket->getFd();
@@ -131,14 +162,14 @@ ER Context::syncWrite(const void *buf, size_t size) {
       __state = CLOSED;
       printf("[Context::syncWrite] Read EOF, client fd %d disconnected\n",
              __socket_fd);
-      this->destroy();
+      // this->destroy();
       return ER::SOCKET_ERROR;
     } else {
       __state = INVALID;
       printf("[Context::syncWrite] Unknown error on fd=%d, socket closed and "
              "context destroyed\n",
              __socket_fd);
-      this->destroy();
+      // this->destroy();
       return ER::SOCKET_ERROR;
     }
   }
@@ -147,26 +178,36 @@ ER Context::syncWrite(const void *buf, size_t size) {
 
 ER Context::write(const std::string &data) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   return syncWrite(data.c_str(), data.size() + 1);
 }
 
 ER Context::write(std::string &&data) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   return write(std::move(data));
 }
 
 ER Context::write(const std::vector<char> &data) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   return syncWrite(data.data(), data.size());
 }
 
 ER Context::write(std::vector<char> &&data) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   return write(std::move(data));
 }
 
 ER Context::writeFile(std::string filePath) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   FILE *file;
   int bytes_read;
   if ((file = ::fopen(filePath.c_str(), "r"))) {
@@ -189,6 +230,8 @@ ER Context::writeFile(std::string filePath) {
 
 ER Context::writeFile(std::string filePath, size_t size) {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return ER::SOCKET_ERROR;
   if (filePath.size() == size)
     return ER::UNIMPLEMENTED;
   return ER::UNIMPLEMENTED;
@@ -206,6 +249,8 @@ std::vector<char> Context::read() {
 
 std::string Context::readString() {
   assert(__state != MOVED);
+  if (__state != VALID)
+    return "";
   auto v = __buffer->getInnerVec();
   std::string ret(v.begin(), v.end());
   __buffer->clear();

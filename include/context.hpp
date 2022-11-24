@@ -40,6 +40,7 @@ private:
     Reactor *__reactor;
     State __state;
     static const size_t read_buf_size = 1024;
+    int __stateCleanup();
 
 public:
     Context(int cfd, Address address, Reactor *reactor,
@@ -49,7 +50,8 @@ public:
     Context &operator=(Context &&) = delete;
     ~Context();
     int handleReadableEvent(); // passed to iocontext
-    int flushWriteBuffer();    // passed to iocontext
+    int handleWritableEvent();  // passed to iocontext
+    void flushWriteBuffer();
     void asyncWrite(const void *, size_t);
     ER syncWrite(const void *, size_t);
     ER write(const std::string &data);
